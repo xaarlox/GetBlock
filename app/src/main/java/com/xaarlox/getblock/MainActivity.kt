@@ -10,7 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.xaarlox.getblock.ui.theme.GetBlockTheme
-import com.xaarlox.getblock.view.RpcViewModel
+import com.xaarlox.getblock.ui.view.RpcViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -20,9 +20,9 @@ class MainActivity : ComponentActivity() {
             LaunchedEffect(Unit) {
                 //viewModel.fetchEpochInfo()
                 //viewModel.fetchSupply()
-                viewModel.fetchBlock()
-                viewModel.fetchLastBlocks()
-                //viewModel.fetchCurrentSlot()
+                //viewModel.fetchBlock()
+                //viewModel.fetchLastBlocks()
+                viewModel.fetchCurrentSlot()
                 //viewModel.toggleAutoUpdate()
             }
         }

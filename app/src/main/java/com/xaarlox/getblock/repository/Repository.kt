@@ -1,11 +1,11 @@
 package com.xaarlox.getblock.repository
 
 import android.util.Log
-import com.xaarlox.getblock.data.remote.dto.BlockResult
-import com.xaarlox.getblock.data.remote.dto.EpochInfoResult
-import com.xaarlox.getblock.data.remote.dto.RpcRequest
-import com.xaarlox.getblock.data.remote.dto.RpcResponse
-import com.xaarlox.getblock.data.remote.dto.SupplyResult
+import com.xaarlox.getblock.data.BlockResult
+import com.xaarlox.getblock.data.EpochInfoResult
+import com.xaarlox.getblock.data.RpcRequest
+import com.xaarlox.getblock.data.RpcResponse
+import com.xaarlox.getblock.data.SupplyResult
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
