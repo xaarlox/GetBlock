@@ -3,44 +3,50 @@ package com.xaarlox.getblock
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.material3.Text
+import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.compose.NavHost
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.xaarlox.getblock.ui.theme.GetBlockTheme
 import com.xaarlox.getblock.ui.view.RpcViewModel
+import com.xaarlox.getblock.ui.screens.HomeScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
+
+        val rpcViewModel = ViewModelProvider(this)[RpcViewModel::class.java]
+
         setContent {
-            val viewModel: RpcViewModel = viewModel()
+            GetBlockTheme {
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background
+                ) {
+                    val navController = rememberNavController()
+                    AppNavigation(navController, rpcViewModel)
+                }
+            }
             LaunchedEffect(Unit) {
-                //viewModel.fetchEpochInfo()
-                //viewModel.fetchSupply()
-                //viewModel.fetchBlock()
-                //viewModel.fetchLastBlocks()
-                viewModel.fetchCurrentSlot()
-                //viewModel.toggleAutoUpdate()
             }
         }
     }
 }
 
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    GetBlockTheme {
-        Greeting("Android")
+fun AppNavigation(navController: NavHostController, viewModel: RpcViewModel) {
+    NavHost(navController = navController, startDestination = "main") {
+        composable("main") {
+            HomeScreen(viewModel, navController)
+        }
     }
 }

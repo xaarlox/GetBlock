@@ -7,6 +7,7 @@ import com.xaarlox.getblock.repository.Repository
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.intOrNull
@@ -28,12 +29,14 @@ class RpcViewModel : ViewModel() {
                         val timeRemaining =
                             countTimeRemain(epochResponse.absoluteSlot, slotRangeEnd)
 
-                        _uiState.value = _uiState.value.copy(
-                            epoch = epochResponse.epoch,
-                            slotRangeStart = slotRangeStart,
-                            slotRangeEnd = slotRangeEnd,
-                            timeRemaining = timeRemaining
-                        )
+                        _uiState.update { state ->
+                            state.copy(
+                                epoch = epochResponse.epoch,
+                                slotRangeStart = slotRangeStart,
+                                slotRangeEnd = slotRangeEnd,
+                                timeRemaining = timeRemaining
+                            )
+                        }
                         Log.d("RpcViewModel", "EpochInfo: $epochResponse")
                     }
                 } catch (exception: Exception) {
@@ -54,16 +57,16 @@ class RpcViewModel : ViewModel() {
                 try {
                     val supplyResponse = repository.getSupply().result
                     if (supplyResponse != null) {
-                        val totalSupply = supplyResponse.value.total
-                        val circulatingSupply = supplyResponse.value.circulating
-                        val nonCirculatingSupply = supplyResponse.value.nonCirculating
+                        val totalSupply = supplyResponse.value.total / SOL_VALUE
+                        val circulatingSupply = supplyResponse.value.circulating / SOL_VALUE
+                        val nonCirculatingSupply = supplyResponse.value.nonCirculating / SOL_VALUE
 
                         _uiState.value = _uiState.value.copy(
                             totalSupply = totalSupply,
                             circulatingSupply = circulatingSupply,
                             nonCirculatingSupply = nonCirculatingSupply,
-                            percentCirculatingSupply = (circulatingSupply.toDouble() / totalSupply) * 100,
-                            percentNonCirculatingSupply = (nonCirculatingSupply.toDouble() / totalSupply) * 100
+                            percentCirculatingSupply = (circulatingSupply / totalSupply) * 100,
+                            percentNonCirculatingSupply = (nonCirculatingSupply / totalSupply) * 100
                         )
                         Log.d("RpcViewModel", "Supply: $supplyResponse")
                     }
@@ -172,6 +175,10 @@ class RpcViewModel : ViewModel() {
         }
     }
 
+    fun setCurrentBlock(block: Block) {
+        _uiState.update { currentState -> currentState.copy(currentBlock = block) }
+    }
+
     private fun countTimeRemain(currentSlot: Long, endSlot: Long): String {
         val remainSlots = endSlot - currentSlot
         val remainSeconds = (remainSlots * 0.4).toLong()
@@ -187,5 +194,6 @@ class RpcViewModel : ViewModel() {
     companion object {
         private const val DEFAULT_BLOCK_COUNT = 10
         private const val DEFAULT_UPDATE_INTERVAL_MS = 60000L
+        const val SOL_VALUE = 1_000_000_000.0
     }
 }

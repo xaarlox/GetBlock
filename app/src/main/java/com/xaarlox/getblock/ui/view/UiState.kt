@@ -2,9 +2,9 @@ package com.xaarlox.getblock.ui.view
 
 data class UiState(
     //Supply
-    val circulatingSupply: Long = 1,
-    val nonCirculatingSupply: Long = 1,
-    val totalSupply: Long = 1,
+    val circulatingSupply: Double = 1.0,
+    val nonCirculatingSupply: Double = 1.0,
+    val totalSupply: Double = 1.0,
 
     val percentCirculatingSupply: Double = 1.1,
     val percentNonCirculatingSupply: Double = 1.1,

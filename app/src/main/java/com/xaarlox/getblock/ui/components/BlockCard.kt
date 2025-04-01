@@ -1,6 +1,5 @@
 package com.xaarlox.getblock.ui.components
 
-import android.icu.text.CaseMap.Title
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -9,17 +8,21 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
-import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.ProvidedValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.xaarlox.getblock.ui.theme.Background
 import com.xaarlox.getblock.ui.theme.BackgroundInfo
+import com.xaarlox.getblock.ui.theme.DarkGray
+import com.xaarlox.getblock.ui.theme.DividerColor
+import com.xaarlox.getblock.ui.theme.Gray
+import com.xaarlox.getblock.ui.theme.LightGray
+import java.text.NumberFormat
+import java.util.Locale
 
 @Composable
 fun BlockCard(
@@ -30,30 +33,50 @@ fun BlockCard(
     firstSubValue: String = "",
     secondSubTitle: String = "",
     secondSubValue: String = "",
-    onClick: () -> Unit = {}
 ) {
     Card(
-        onClick = onClick,
-        modifier = Modifier.background(Background),
-        shape = RoundedCornerShape(12.dp)
+        modifier = modifier
+            .background(BackgroundInfo, shape = RoundedCornerShape(12.dp))
+            .fillMaxWidth()
     ) {
-        Column(modifier = Modifier.padding(10.dp)) {
-            Text(text = title, fontSize = 20.sp, fontWeight = FontWeight.Bold)
-            Spacer(Modifier.height(10.dp))
-            Text(text = mainValue, fontWeight = FontWeight.Bold, fontSize = 20.sp)
-            Spacer(Modifier.height(10.dp))
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(text = title, fontSize = 16.sp, fontWeight = FontWeight.Normal, color = Gray)
+            Spacer(Modifier.height(8.dp))
+            Text(
+                text = mainValue,
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold,
+                color = DarkGray
+            )
+            Spacer(Modifier.height(16.dp))
             Column(
                 modifier = Modifier
-                    .background(BackgroundInfo, shape = RoundedCornerShape(12.dp))
+                    .background(Background, shape = RoundedCornerShape(12.dp))
                     .fillMaxWidth()
-                    .padding(10.dp)
+                    .padding(12.dp)
             ) {
-                Text(text = firstSubTitle)
-                Text(text = firstSubValue)
-                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-                Text(text = secondSubTitle)
-                Text(text = secondSubValue)
+                Text(text = firstSubTitle, fontSize = 14.sp, color = LightGray)
+                Text(
+                    text = firstSubValue,
+                    fontSize = 16.sp,
+                    color = Gray
+                )
+                Divider(modifier = Modifier.padding(vertical = 8.dp), color = DividerColor)
+                Text(text = secondSubTitle, fontSize = 14.sp, color = LightGray)
+                Text(
+                    text = secondSubValue,
+                    fontSize = 16.sp,
+                    color = Gray
+                )
             }
         }
     }
+}
+
+fun formatNumber(value: Double, decimalPlaces: Int): String {
+    val formatter = NumberFormat.getNumberInstance(Locale.US).apply {
+        minimumFractionDigits = decimalPlaces
+        maximumFractionDigits = decimalPlaces
+    }
+    return formatter.format(value)
 }
