@@ -109,7 +109,6 @@ class RpcViewModel : ViewModel() {
                     exception
                 )
             }
-            delay(DEFAULT_UPDATE_INTERVAL_MS)
         }
     }
 
@@ -133,47 +132,52 @@ class RpcViewModel : ViewModel() {
 
     fun fetchLastBlocks() {
         viewModelScope.launch {
-            try {
-                val lastSlot = repository.getLastSlot().result?.intOrNull
-                val epochResponse = repository.getEpoch().result
-                if (lastSlot != null && epochResponse != null) {
-                    val startSlot = lastSlot - DEFAULT_BLOCK_COUNT
-                    val blocksResponse = repository.getBlocks(startSlot, lastSlot)
+            while (isActive) {
+                try {
+                    val lastSlot = repository.getLastSlot().result?.intOrNull
+                    val epochResponse = repository.getEpoch().result
+                    if (lastSlot != null && epochResponse != null) {
+                        val startSlot = lastSlot - DEFAULT_BLOCK_COUNT
+                        val blocksResponse = repository.getBlocks(startSlot, lastSlot)
 
-                    if (blocksResponse?.result != null) {
-                        val blockHeights = blocksResponse.result as? List<Int>
+                        if (blocksResponse?.result != null) {
+                            val blockHeights = blocksResponse.result as? List<Int>
 
-                        if (blockHeights != null) {
-                            val blocks = mutableListOf<Block>()
-                            for (blockHeight in blockHeights) {
-                                val blockInfo = repository.getBlock(blockHeight)
-                                val blockResult = blockInfo?.result
-                                if (blockResult != null) {
-                                    val block = Block(
-                                        block = blockHeight.toLong(),
-                                        signature = blockResult.blockhash ?: "N/A",
-                                        time = blockResult.blockTime.toLong() ?: 0L,
-                                        epoch = epochResponse.epoch,
-                                        rewardLamports = blockResult.rewards.sumOf { it.lamports },
-                                        previousBlockHash = blockResult.previousBlockhash ?: "N/A"
-                                    )
-                                    blocks.add(block)
+                            if (blockHeights != null) {
+                                val blocks = mutableListOf<Block>()
+                                for (blockHeight in blockHeights) {
+                                    val blockInfo = repository.getBlock(blockHeight)
+                                    val blockResult = blockInfo?.result
+                                    if (blockResult != null) {
+                                        val block = Block(
+                                            block = blockHeight.toLong(),
+                                            signature = blockResult.blockhash ?: "N/A",
+                                            time = blockResult.blockTime.toLong() ?: 0L,
+                                            epoch = epochResponse.epoch,
+                                            rewardLamports = blockResult.rewards.sumOf { it.lamports },
+                                            previousBlockHash = blockResult.previousBlockhash
+                                                ?: "N/A"
+                                        )
+                                        blocks.add(block)
+                                    }
                                 }
+                                _uiState.value = _uiState.value.copy(blocks = blocks.toList())
+                                Log.d("RpcViewModel", "Last Blocks: $blocks")
                             }
-                            _uiState.value = _uiState.value.copy(blocks = blocks)
-                            Log.d("RpcViewModel", "Last Blocks: $blocks")
                         }
                     }
+                } catch (exception: Exception) {
+                    Log.e(
+                        "RpcViewModel",
+                        "fetchLastBlocks() Exception: ${exception.message}",
+                        exception
+                    )
                 }
-            } catch (exception: Exception) {
-                Log.e(
-                    "RpcViewModel",
-                    "fetchLastBlocks() Exception: ${exception.message}",
-                    exception
-                )
+                delay(DEFAULT_UPDATE_INTERVAL_MS)
             }
         }
     }
+
 
     fun setCurrentBlock(block: Block) {
         _uiState.update { currentState -> currentState.copy(currentBlock = block) }

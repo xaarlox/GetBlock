@@ -8,15 +8,17 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.xaarlox.getblock.ui.theme.Background
-import com.xaarlox.getblock.ui.theme.BackgroundInfo
 import com.xaarlox.getblock.ui.theme.DarkGray
 import com.xaarlox.getblock.ui.theme.DividerColor
 import com.xaarlox.getblock.ui.theme.Gray
@@ -35,34 +37,36 @@ fun BlockCard(
     secondSubValue: String = "",
 ) {
     Card(
-        modifier = modifier
-            .background(BackgroundInfo, shape = RoundedCornerShape(12.dp))
-            .fillMaxWidth()
+        shape = RoundedCornerShape(16.dp),
+        elevation = CardDefaults.cardElevation(4.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        modifier = modifier.fillMaxWidth()
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text(text = title, fontSize = 16.sp, fontWeight = FontWeight.Normal, color = Gray)
+            Text(text = title, fontSize = 14.sp, fontWeight = FontWeight.Medium, color = Gray)
             Spacer(Modifier.height(8.dp))
             Text(
                 text = mainValue,
-                fontSize = 24.sp,
+                fontSize = 22.sp,
                 fontWeight = FontWeight.Bold,
                 color = DarkGray
             )
-            Spacer(Modifier.height(16.dp))
+            Spacer(Modifier.height(12.dp))
             Column(
                 modifier = Modifier
-                    .background(Background, shape = RoundedCornerShape(12.dp))
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(Background)
                     .fillMaxWidth()
                     .padding(12.dp)
             ) {
-                Text(text = firstSubTitle, fontSize = 14.sp, color = LightGray)
+                Text(text = firstSubTitle, fontSize = 13.sp, color = LightGray)
                 Text(
                     text = firstSubValue,
                     fontSize = 16.sp,
                     color = Gray
                 )
                 Divider(modifier = Modifier.padding(vertical = 8.dp), color = DividerColor)
-                Text(text = secondSubTitle, fontSize = 14.sp, color = LightGray)
+                Text(text = secondSubTitle, fontSize = 13.sp, color = LightGray)
                 Text(
                     text = secondSubValue,
                     fontSize = 16.sp,

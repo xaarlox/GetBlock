@@ -1,6 +1,5 @@
 package com.xaarlox.getblock.ui.components
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -12,39 +11,46 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.xaarlox.getblock.ui.theme.BackgroundInfo
+import androidx.compose.ui.unit.sp
 import com.xaarlox.getblock.ui.theme.Blue
+import com.xaarlox.getblock.ui.theme.DarkGray
+import com.xaarlox.getblock.ui.theme.DividerColor
+import com.xaarlox.getblock.ui.theme.Gray
 import com.xaarlox.getblock.ui.view.Block
 
 @Composable
 fun BlockInfo(blockList: List<Block>, onBlockClick: (Block) -> Unit) {
     Card(
-        modifier = Modifier
-            .background(BackgroundInfo, shape = RoundedCornerShape(12.dp))
-            .fillMaxWidth()
+        shape = RoundedCornerShape(16.dp),
+        elevation = CardDefaults.cardElevation(4.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        modifier = Modifier.fillMaxWidth()
     ) {
         Column(modifier = Modifier.padding(10.dp)) {
+            Text(
+                text = "Latest Blocks",
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Medium,
+                color = DarkGray, modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 8.dp)
+            )
             BlockHeader()
             Column {
-                blockList.reversed().forEach { block ->
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable { onBlockClick(block) },
-                        colors = CardDefaults.cardColors(containerColor = Color.Transparent)
-                    ) {
-                        BlockRow(
-                            signature = block.signature,
-                            time = block.time,
-                            block = block.block.toString()
-                        )
-                    }
+                blockList.reversed().forEachIndexed { index, block ->
+                    BlockRow(
+                        signature = block.signature,
+                        time = block.time,
+                        block = block.block.toString(),
+                        onClick = { onBlockClick(block) },
+                        showDivider = index != blockList.lastIndex
+                    )
                 }
             }
         }
@@ -52,73 +58,84 @@ fun BlockInfo(blockList: List<Block>, onBlockClick: (Block) -> Unit) {
 }
 
 @Composable
-fun BlockHeader(modifier: Modifier = Modifier) {
-    Column(Modifier.padding(vertical = 5.dp)) {
-        Row {
-            Text(
-                modifier = modifier.weight(4.0f),
-                text = "Signature",
-                fontWeight = FontWeight.Bold
-            )
-            Text(
-                modifier = modifier.weight(3.0f),
-                text = "Time",
-                fontWeight = FontWeight.Bold
-            )
-            Text(
-                modifier = modifier.weight(3.0f),
-                text = "Block",
-                fontWeight = FontWeight.Bold
-            )
-        }
-        HorizontalDivider(modifier = modifier.fillMaxWidth())
+fun BlockHeader() {
+    Row(modifier = Modifier.padding(vertical = 5.dp)) {
+        Text(
+            modifier = Modifier.weight(4f),
+            text = "Signature",
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Bold,
+            color = DarkGray
+        )
+        Text(
+            modifier = Modifier.weight(3f),
+            text = "Time",
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Bold,
+            color = DarkGray
+        )
+        Text(
+            modifier = Modifier.weight(3f),
+            text = "Block",
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Bold,
+            color = DarkGray
+        )
     }
+    HorizontalDivider(color = DividerColor, thickness = 1.dp)
 }
 
 @Composable
 fun BlockRow(
-    modifier: Modifier = Modifier,
-    signature: String = "Loading...",
-    time: Long = 1,
-    block: String = "Loading..."
+    signature: String,
+    time: Long,
+    block: String,
+    onClick: () -> Unit,
+    showDivider: Boolean
 ) {
-    Row(modifier = modifier.padding(bottom = 8.dp)) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp)
+            .clickable { onClick() },
+        verticalAlignment = Alignment.CenterVertically
+    ) {
         Text(
-            modifier = modifier.weight(4.0f),
+            modifier = Modifier.weight(4f),
             text = signature,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
-            textAlign = TextAlign.Start,
-            color = Blue
+            fontSize = 14.sp,
+            color = Gray
         )
         Text(
-            modifier = modifier.weight(3.0f),
+            modifier = Modifier.weight(3f),
             text = calculateTime(time),
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
-            textAlign = TextAlign.Start
+            fontSize = 14.sp,
+            color = Gray
         )
         Text(
-            modifier = modifier.weight(3.0f),
+            modifier = Modifier.weight(3f),
             text = block,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
-            textAlign = TextAlign.Start,
-            color = Blue
+            color = Blue,
+            fontSize = 14.sp,
         )
+    }
+    if (showDivider) {
+        HorizontalDivider(color = DividerColor, thickness = 1.dp)
     }
 }
 
 private fun calculateTime(timestamp: Long): String {
     val secondsAgo = (System.currentTimeMillis() / 1000) - timestamp
-    val minutes = secondsAgo / 60
-    val hours = minutes / 60
-    val days = hours / 24
-
     return when {
-        days > 0 -> "$days d ago"
-        hours > 0 -> "$hours h ago"
-        minutes > 0 -> "$minutes m ago"
-        else -> "$secondsAgo s ago"
+        secondsAgo >= 86400 -> "${secondsAgo / 86400} days ago"
+        secondsAgo >= 3600 -> "${secondsAgo / 3600} hours ago"
+        secondsAgo >= 60 -> "${secondsAgo / 60} min ago"
+        else -> "$secondsAgo secs ago"
     }
 }

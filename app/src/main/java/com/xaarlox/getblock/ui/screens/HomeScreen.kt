@@ -40,6 +40,7 @@ fun HomeScreen(viewModel: RpcViewModel, navController: NavHostController) {
     LaunchedEffect(Unit) {
         viewModel.fetchEpochInfo()
         viewModel.fetchSupply()
+        viewModel.fetchLastBlocks()
     }
 
     Column {
