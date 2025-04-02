@@ -43,13 +43,15 @@ fun BlockInfo(blockList: List<Block>, onBlockClick: (Block) -> Unit) {
             )
             BlockHeader()
             Column {
-                blockList.reversed().forEachIndexed { index, block ->
+                val currentTimestamp = System.currentTimeMillis() / 1000
+                blockList.asReversed().forEachIndexed { index, block ->
                     BlockRow(
                         signature = block.signature,
                         time = block.time,
                         block = block.block.toString(),
                         onClick = { onBlockClick(block) },
-                        showDivider = index != blockList.lastIndex
+                        showDivider = index != blockList.lastIndex,
+                        currentTimestamp = currentTimestamp
                     )
                 }
             }
@@ -91,13 +93,13 @@ fun BlockRow(
     time: Long,
     block: String,
     onClick: () -> Unit,
-    showDivider: Boolean
+    showDivider: Boolean,
+    currentTimestamp: Long
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp)
-            .clickable { onClick() },
+            .padding(vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
@@ -110,14 +112,16 @@ fun BlockRow(
         )
         Text(
             modifier = Modifier.weight(3f),
-            text = calculateTime(time),
+            text = calculateTime(time, currentTimestamp),
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             fontSize = 14.sp,
             color = Gray
         )
         Text(
-            modifier = Modifier.weight(3f),
+            modifier = Modifier
+                .weight(3f)
+                .clickable { onClick() },
             text = block,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
@@ -130,8 +134,8 @@ fun BlockRow(
     }
 }
 
-private fun calculateTime(timestamp: Long): String {
-    val secondsAgo = (System.currentTimeMillis() / 1000) - timestamp
+fun calculateTime(timestamp: Long, currentTimestamp: Long): String {
+    val secondsAgo = currentTimestamp - timestamp
     return when {
         secondsAgo >= 86400 -> "${secondsAgo / 86400} days ago"
         secondsAgo >= 3600 -> "${secondsAgo / 3600} hours ago"

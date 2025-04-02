@@ -1,5 +1,6 @@
 package com.xaarlox.getblock
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -15,6 +16,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.xaarlox.getblock.ui.screens.BlockScreen
 import com.xaarlox.getblock.ui.theme.GetBlockTheme
 import com.xaarlox.getblock.ui.view.RpcViewModel
 import com.xaarlox.getblock.ui.screens.HomeScreen
@@ -42,11 +44,20 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+@SuppressLint("StateFlowValueCalledInComposition")
 @Composable
 fun AppNavigation(navController: NavHostController, viewModel: RpcViewModel) {
     NavHost(navController = navController, startDestination = "main") {
         composable("main") {
             HomeScreen(viewModel, navController)
+        }
+        composable("block/{blockNumber}") { backStackEntry ->
+            val blockNumber = backStackEntry.arguments?.getString("blockNumber")?.toLongOrNull()
+            val selectedBlock = viewModel.uiState.value?.blocks?.find { it.block == blockNumber }
+
+            if (selectedBlock != null) {
+                BlockScreen(viewModel, onClose = { navController.popBackStack() })
+            }
         }
     }
 }

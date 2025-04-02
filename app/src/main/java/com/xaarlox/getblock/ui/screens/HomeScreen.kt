@@ -126,7 +126,7 @@ fun HomeScreen(viewModel: RpcViewModel, navController: NavHostController) {
                     blockList = uiState.blocks,
                     onBlockClick = { block ->
                         viewModel.setCurrentBlock(block)
-                        navController.navigate("block")
+                        navController.navigate("block/${block.block}")
                     }
                 )
             }
