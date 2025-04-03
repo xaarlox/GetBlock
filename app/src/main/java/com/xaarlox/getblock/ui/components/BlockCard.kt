@@ -9,7 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -65,7 +65,10 @@ fun BlockCard(
                     fontSize = 16.sp,
                     color = Gray
                 )
-                Divider(modifier = Modifier.padding(vertical = 8.dp), color = DividerColor)
+                HorizontalDivider(
+                    modifier = Modifier.padding(vertical = 8.dp),
+                    color = DividerColor
+                )
                 Text(text = secondSubTitle, fontSize = 13.sp, color = LightGray)
                 Text(
                     text = secondSubValue,

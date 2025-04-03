@@ -11,9 +11,11 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.intOrNull
+import kotlinx.serialization.json.longOrNull
 
 class RpcViewModel : ViewModel() {
     private val repository = Repository()
+    private val _searchedBlock = MutableStateFlow<Block?>(null)
     private val _uiState = MutableStateFlow(UiState())
     val uiState: StateFlow<UiState> = _uiState
 
@@ -82,10 +84,10 @@ class RpcViewModel : ViewModel() {
         }
     }
 
-    fun fetchBlock(specificSlot: Int? = null) {
+    fun fetchBlock(specificSlot: Long? = null) {
         viewModelScope.launch {
             try {
-                val slot = specificSlot ?: repository.getLastSlot().result?.intOrNull
+                val slot = specificSlot ?: repository.getLastSlot().result?.longOrNull
                 if (slot != null) {
                     val blockResponse = repository.getBlock(slot).result
                     val epochResponse = repository.getEpoch().result
@@ -98,7 +100,12 @@ class RpcViewModel : ViewModel() {
                             rewardLamports = blockResponse.rewards.sumOf { it.lamports },
                             previousBlockHash = blockResponse.previousBlockhash
                         )
-                        _uiState.value = _uiState.value.copy(currentBlock = block)
+                        _uiState.update { currentState ->
+                            currentState.copy(currentBlock = block)
+                        }
+                        if (specificSlot != null) {
+                            _searchedBlock.value = block
+                        }
                         Log.d("RpcViewModel", "Block: $blockResponse")
                     }
                 }
@@ -106,24 +113,6 @@ class RpcViewModel : ViewModel() {
                 Log.e(
                     "RpcViewModel",
                     "fetchBlock() Exception: ${exception.message}",
-                    exception
-                )
-            }
-        }
-    }
-
-    fun fetchCurrentSlot() {
-        viewModelScope.launch {
-            try {
-                val slotResponse = repository.getLastSlot().result?.intOrNull
-                if (slotResponse != null) {
-                    _uiState.value = _uiState.value.copy(slotRangeStart = slotResponse)
-                    Log.d("RpcViewModel", "Current Slot: $slotResponse")
-                }
-            } catch (exception: Exception) {
-                Log.e(
-                    "RpcViewModel",
-                    "fetchCurrentSlot() Exception: ${exception.message}",
                     exception
                 )
             }
@@ -140,23 +129,22 @@ class RpcViewModel : ViewModel() {
                         val startSlot = lastSlot - DEFAULT_BLOCK_COUNT
                         val blocksResponse = repository.getBlocks(startSlot, lastSlot)
 
-                        if (blocksResponse?.result != null) {
+                        if (blocksResponse.result != null) {
                             val blockHeights = blocksResponse.result as? List<Int>
 
                             if (blockHeights != null) {
                                 val blocks = mutableListOf<Block>()
                                 for (blockHeight in blockHeights) {
-                                    val blockInfo = repository.getBlock(blockHeight)
-                                    val blockResult = blockInfo?.result
+                                    val blockInfo = repository.getBlock(blockHeight.toLong())
+                                    val blockResult = blockInfo.result
                                     if (blockResult != null) {
                                         val block = Block(
                                             block = blockHeight.toLong(),
-                                            signature = blockResult.blockhash ?: "N/A",
-                                            time = blockResult.blockTime.toLong() ?: 0L,
+                                            signature = blockResult.blockhash,
+                                            time = blockResult.blockTime.toLong(),
                                             epoch = epochResponse.epoch,
                                             rewardLamports = blockResult.rewards.sumOf { it.lamports },
                                             previousBlockHash = blockResult.previousBlockhash
-                                                ?: "N/A"
                                         )
                                         blocks.add(block)
                                     }
@@ -179,8 +167,14 @@ class RpcViewModel : ViewModel() {
     }
 
 
-    fun setCurrentBlock(block: Block) {
-        _uiState.update { currentState -> currentState.copy(currentBlock = block) }
+    fun setCurrentBlock(block: Block?) {
+        _uiState.update { currentState ->
+            if (currentState.currentBlock != block) {
+                currentState.copy(currentBlock = block)
+            } else {
+                currentState
+            }
+        }
     }
 
     private fun countTimeRemain(currentSlot: Long, endSlot: Long): String {

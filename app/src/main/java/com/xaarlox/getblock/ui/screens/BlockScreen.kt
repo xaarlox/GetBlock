@@ -16,6 +16,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -33,9 +34,15 @@ import com.xaarlox.getblock.ui.view.RpcViewModel.Companion.SOL_VALUE
 import com.xaarlox.getblock.ui.view.UiState
 
 @Composable
-fun BlockScreen(viewModel: RpcViewModel, onClose: () -> Unit) {
+fun BlockScreen(viewModel: RpcViewModel, blockNumber: Long?, onClose: () -> Unit) {
     val block = viewModel.uiState.collectAsState().value
-    val solToUSD: Double = 144.44
+    val solToUSD = 144.44
+
+    LaunchedEffect(key1 = blockNumber) {
+        if (blockNumber != null) {
+            viewModel.fetchBlock(blockNumber)
+        }
+    }
 
     Box(
         modifier = Modifier
@@ -56,41 +63,39 @@ fun BlockScreen(viewModel: RpcViewModel, onClose: () -> Unit) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            if (block == null) {
-                Text("Loading...", fontSize = 20.sp)
-            } else {
-                Column(modifier = Modifier
+            Column(
+                modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = 8.dp)) {
-                    Text(
-                        text = "Block Details",
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = DarkGray,
-                        modifier = Modifier
-                            .padding(bottom = 8.dp)
-                            .align(Alignment.Start)
-                    )
-                    Text(
-                        text = "${block.currentBlock.block}",
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Medium,
-                        color = DarkGray,
-                        modifier = Modifier
-                            .padding(bottom = 16.dp)
-                            .align(Alignment.Start)
-                    )
-                }
-                Card(
-                    shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color.White),
-                    elevation = CardDefaults.cardElevation(4.dp),
+                    .padding(start = 8.dp)
+            ) {
+                Text(
+                    text = "Block Details",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = DarkGray,
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp)
-                ) {
-                    BlockGrid(block, solToUSD)
-                }
+                        .padding(bottom = 8.dp)
+                        .align(Alignment.Start)
+                )
+                Text(
+                    text = "${block.currentBlock?.block}",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = DarkGray,
+                    modifier = Modifier
+                        .padding(bottom = 16.dp)
+                        .align(Alignment.Start)
+                )
+            }
+            Card(
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = Color.White),
+                elevation = CardDefaults.cardElevation(4.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp)
+            ) {
+                BlockGrid(block, solToUSD)
             }
         }
     }
@@ -105,12 +110,14 @@ fun BlockGrid(block: UiState, solPrice: Double) {
     ) {
         val currentTimestamp = System.currentTimeMillis() / 1000
         val items = listOf(
-            "Block" to block.currentBlock.block.toString(),
-            "Timestamp" to calculateTime(block.currentBlock.time, currentTimestamp),
-            "Block Hash" to block.currentBlock.signature,
-            "Epoch" to block.currentBlock.epoch.toString(),
-            "Reward" to calculatePrice(block.currentBlock.rewardLamports, solPrice),
-            "Previous Block Hash" to block.currentBlock.previousBlockHash
+            "Block" to (block.currentBlock?.block?.toString() ?: "N/A"),
+            "Timestamp" to (block.currentBlock?.time?.let { calculateTime(it, currentTimestamp) }
+                ?: "N/A"),
+            "Block Hash" to (block.currentBlock?.signature ?: "N/A"),
+            "Epoch" to (block.currentBlock?.epoch?.toString() ?: "N/A"),
+            "Reward" to (block.currentBlock?.rewardLamports?.let { calculatePrice(it, solPrice) }
+                ?: "N/A"),
+            "Previous Block Hash" to (block.currentBlock?.previousBlockHash ?: "N/A")
         )
         items.forEach { (title, value) ->
             Column(modifier = Modifier.padding(vertical = 4.dp)) {
@@ -127,10 +134,7 @@ fun BlockGrid(block: UiState, solPrice: Double) {
 }
 
 fun calculatePrice(rewardLamports: Int, solToUSD: Double): String {
-    if (rewardLamports == null) return "N/A"
-
     val solReward = rewardLamports / SOL_VALUE
     val usdReward = solReward * solToUSD
-
     return "%.6f SOL (%.2f USD)".format(solReward, usdReward)
 }

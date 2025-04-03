@@ -10,6 +10,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.compose.NavHost
@@ -49,15 +50,26 @@ class MainActivity : ComponentActivity() {
 fun AppNavigation(navController: NavHostController, viewModel: RpcViewModel) {
     NavHost(navController = navController, startDestination = "main") {
         composable("main") {
-            HomeScreen(viewModel, navController)
+            HomeScreen(
+                viewModel,
+                navController
+            )
         }
         composable("block/{blockNumber}") { backStackEntry ->
             val blockNumber = backStackEntry.arguments?.getString("blockNumber")?.toLongOrNull()
-            val selectedBlock = viewModel.uiState.value?.blocks?.find { it.block == blockNumber }
+            val uiState = viewModel.uiState.collectAsState().value
+            val selectedBlock = uiState.blocks.find { it.block == blockNumber }
 
-            if (selectedBlock != null) {
-                BlockScreen(viewModel, onClose = { navController.popBackStack() })
+            LaunchedEffect(blockNumber) {
+                if (blockNumber != null && selectedBlock == null) {
+                    viewModel.fetchBlock(blockNumber)
+                }
             }
+            BlockScreen(viewModel, blockNumber = blockNumber, onClose = {
+                if (!navController.popBackStack()) {
+                    navController.navigate("main")
+                }
+            })
         }
     }
 }

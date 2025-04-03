@@ -66,10 +66,15 @@ class Repository {
         return postRpc("getSlot")
     }
 
-    suspend fun getBlock(slot: Int?): RpcResponse<BlockResult> {
-        val params = listOf(
-            JsonPrimitive(slot),
-            buildJsonObject { put("maxSupportedTransactionVersion", 0) })
+    suspend fun getBlock(slot: Long?): RpcResponse<BlockResult> {
+        val params = if (slot != null) {
+            listOf(
+                JsonPrimitive(slot),
+                buildJsonObject { put("maxSupportedTransactionVersion", 0) }
+            )
+        } else {
+            listOf(buildJsonObject { put("maxSupportedTransactionVersion", 0) })
+        }
         return postRpc("getBlock", params)
     }
 

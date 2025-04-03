@@ -16,13 +16,6 @@ data class UiState(
     val timeRemaining: String = "",
 
     //Block
-    val currentBlock: Block = Block(
-        block = 1,
-        signature = "",
-        time = 1,
-        epoch = 1,
-        rewardLamports = 1,
-        previousBlockHash = ""
-    ),
+    val currentBlock: Block? = null,
     val blocks: List<Block> = emptyList(),
 )

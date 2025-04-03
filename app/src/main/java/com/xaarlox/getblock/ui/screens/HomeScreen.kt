@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.xaarlox.getblock.ui.components.BlockCard
 import com.xaarlox.getblock.ui.components.BlockInfo
+import com.xaarlox.getblock.ui.components.HeaderSearchBar
 import com.xaarlox.getblock.ui.components.formatNumber
 import com.xaarlox.getblock.ui.theme.Background
 import com.xaarlox.getblock.ui.theme.Blue
@@ -34,7 +35,10 @@ import com.xaarlox.getblock.ui.view.RpcViewModel
 
 @SuppressLint("DefaultLocale")
 @Composable
-fun HomeScreen(viewModel: RpcViewModel, navController: NavHostController) {
+fun HomeScreen(
+    viewModel: RpcViewModel,
+    navController: NavHostController
+) {
     val uiState = viewModel.uiState.collectAsState().value
 
     LaunchedEffect(Unit) {
@@ -47,7 +51,7 @@ fun HomeScreen(viewModel: RpcViewModel, navController: NavHostController) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(300.dp)
+                .height(250.dp)
                 .background(
                     brush = Brush.horizontalGradient(
                         colors = listOf(
@@ -63,10 +67,10 @@ fun HomeScreen(viewModel: RpcViewModel, navController: NavHostController) {
                     .padding(16.dp)
             ) {
                 Text(
-                    text = "GetBlock",
+                    text = "SOLSCAN",
                     color = Color.White,
                     fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Medium
                 )
                 Spacer(Modifier.height(30.dp))
                 Text(
@@ -76,6 +80,14 @@ fun HomeScreen(viewModel: RpcViewModel, navController: NavHostController) {
                     fontWeight = FontWeight.Medium
                 )
                 Spacer(Modifier.height(15.dp))
+                HeaderSearchBar(
+                    viewModel = viewModel,
+                    onSearchClick = { blockNumber ->
+                        viewModel.fetchBlock(blockNumber)
+                        navController.navigate("block/$blockNumber")
+                        viewModel.setCurrentBlock(null)
+                    }
+                )
             }
         }
         LazyColumn(
