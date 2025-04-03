@@ -16,7 +16,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -34,7 +33,7 @@ import com.xaarlox.getblock.ui.view.RpcViewModel.Companion.SOL_VALUE
 import com.xaarlox.getblock.ui.view.UiState
 
 @Composable
-fun BlockScreen(viewModel: RpcViewModel, blockNumber: Long?, onClose: () -> Unit) {
+fun BlockScreen(viewModel: RpcViewModel, onClose: () -> Unit) {
     val block = viewModel.uiState.collectAsState().value
     val solToUSD = 114.3
 

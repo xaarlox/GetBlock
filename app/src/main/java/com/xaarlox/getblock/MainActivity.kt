@@ -55,15 +55,21 @@ fun AppNavigation(navController: NavHostController, viewModel: RpcViewModel) {
         }
         composable("block/{blockNumber}") { backStackEntry ->
             val blockNumber = backStackEntry.arguments?.getString("blockNumber")?.toLongOrNull()
+
+            if (blockNumber == null) {
+                navController.popBackStack()
+                return@composable
+            }
+
             val uiState = viewModel.uiState.collectAsState().value
             val selectedBlock = uiState.blocks.find { it.block == blockNumber }
 
             LaunchedEffect(blockNumber) {
-                if (blockNumber != null && selectedBlock == null) {
+                if (selectedBlock == null) {
                     viewModel.fetchBlock(blockNumber)
                 }
             }
-            BlockScreen(viewModel, blockNumber = blockNumber, onClose = {
+            BlockScreen(viewModel, onClose = {
                 if (!navController.popBackStack()) {
                     navController.navigate("main")
                 }
