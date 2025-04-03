@@ -36,7 +36,7 @@ import com.xaarlox.getblock.ui.view.UiState
 @Composable
 fun BlockScreen(viewModel: RpcViewModel, blockNumber: Long?, onClose: () -> Unit) {
     val block = viewModel.uiState.collectAsState().value
-    val solToUSD = 144.44
+    val solToUSD = 114.3
 
     LaunchedEffect(key1 = blockNumber) {
         if (blockNumber != null) {

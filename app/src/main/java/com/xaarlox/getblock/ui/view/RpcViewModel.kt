@@ -19,7 +19,7 @@ class RpcViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(UiState())
     val uiState: StateFlow<UiState> = _uiState
 
-    fun fetchEpochInfo() {
+    private fun fetchEpochInfo() {
         viewModelScope.launch {
             while (isActive) {
                 try {
@@ -53,7 +53,7 @@ class RpcViewModel : ViewModel() {
         }
     }
 
-    fun fetchSupply() {
+    private fun fetchSupply() {
         viewModelScope.launch {
             while (isActive) {
                 try {
@@ -119,7 +119,7 @@ class RpcViewModel : ViewModel() {
         }
     }
 
-    fun fetchLastBlocks() {
+    private fun fetchLastBlocks() {
         viewModelScope.launch {
             while (isActive) {
                 try {
@@ -187,6 +187,12 @@ class RpcViewModel : ViewModel() {
         val seconds = (remainSeconds % 60).toInt()
 
         return "${days}d ${hours}h ${minutes}m ${seconds}s"
+    }
+
+    init {
+        fetchEpochInfo()
+        fetchSupply()
+        fetchLastBlocks()
     }
 
     companion object {

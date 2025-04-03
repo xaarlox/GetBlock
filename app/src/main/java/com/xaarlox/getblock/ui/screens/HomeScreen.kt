@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -40,12 +39,6 @@ fun HomeScreen(
     navController: NavHostController
 ) {
     val uiState = viewModel.uiState.collectAsState().value
-
-    LaunchedEffect(Unit) {
-        viewModel.fetchEpochInfo()
-        viewModel.fetchSupply()
-        viewModel.fetchLastBlocks()
-    }
 
     Column {
         Box(
