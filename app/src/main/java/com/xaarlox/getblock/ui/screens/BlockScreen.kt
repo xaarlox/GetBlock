@@ -38,12 +38,6 @@ fun BlockScreen(viewModel: RpcViewModel, blockNumber: Long?, onClose: () -> Unit
     val block = viewModel.uiState.collectAsState().value
     val solToUSD = 114.3
 
-    LaunchedEffect(key1 = blockNumber) {
-        if (blockNumber != null) {
-            viewModel.fetchBlock(blockNumber)
-        }
-    }
-
     Box(
         modifier = Modifier
             .fillMaxSize()
