@@ -125,35 +125,35 @@ class RpcViewModel : ViewModel() {
                 try {
                     val lastSlot = repository.getLastSlot().result?.intOrNull
                     val epochResponse = repository.getEpoch().result
-                    if (lastSlot != null && epochResponse != null) {
-                        val startSlot = lastSlot - DEFAULT_BLOCK_COUNT
-                        val blocksResponse = repository.getBlocks(startSlot, lastSlot)
 
-                        if (blocksResponse.result != null) {
-                            val blockHeights = blocksResponse.result as? List<Int>
-
-                            if (blockHeights != null) {
-                                val blocks = mutableListOf<Block>()
-                                for (blockHeight in blockHeights) {
-                                    val blockInfo = repository.getBlock(blockHeight.toLong())
-                                    val blockResult = blockInfo.result
-                                    if (blockResult != null) {
-                                        val block = Block(
-                                            block = blockHeight.toLong(),
-                                            signature = blockResult.blockhash,
-                                            time = blockResult.blockTime.toLong(),
-                                            epoch = epochResponse.epoch,
-                                            rewardLamports = blockResult.rewards.sumOf { it.lamports },
-                                            previousBlockHash = blockResult.previousBlockhash
-                                        )
-                                        blocks.add(block)
-                                    }
-                                }
-                                _uiState.value = _uiState.value.copy(blocks = blocks.toList())
-                                Log.d("RpcViewModel", "Last Blocks: $blocks")
-                            }
-                        }
+                    if (lastSlot == null || epochResponse == null) {
+                        delay(DEFAULT_UPDATE_INTERVAL_MS)
+                        continue
                     }
+
+                    val startSlot = lastSlot - DEFAULT_BLOCK_COUNT
+                    val blocksResponse = repository.getBlocks(startSlot, lastSlot)
+                    val blockHeights = blocksResponse.result
+
+                    if (blockHeights.isNullOrEmpty()) {
+                        delay(DEFAULT_UPDATE_INTERVAL_MS)
+                        continue
+                    }
+
+                    val blocks = blockHeights.mapNotNull { blockHeight ->
+                        val blockInfo = repository.getBlock(blockHeight.toLong())
+                        val blockResult = blockInfo.result ?: return@mapNotNull null
+                        Block(
+                            block = blockHeight.toLong(),
+                            signature = blockResult.blockhash,
+                            time = blockResult.blockTime.toLong(),
+                            epoch = epochResponse.epoch,
+                            rewardLamports = blockResult.rewards.sumOf { it.lamports },
+                            previousBlockHash = blockResult.previousBlockhash
+                        )
+                    }
+                    _uiState.value = _uiState.value.copy(blocks = blocks.toList())
+                    Log.d("RpcViewModel", "Last Blocks: $blocks")
                 } catch (exception: Exception) {
                     Log.e(
                         "RpcViewModel",

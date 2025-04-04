@@ -102,25 +102,38 @@ fun BlockGrid(block: UiState, solPrice: Double) {
             .padding(horizontal = 16.dp, vertical = 12.dp)
     ) {
         val currentTimestamp = System.currentTimeMillis() / 1000
-        val items = listOf(
-            "Block" to (block.currentBlock?.block?.toString() ?: "N/A"),
-            "Timestamp" to (block.currentBlock?.time?.let { calculateTime(it, currentTimestamp) }
-                ?: "N/A"),
-            "Block Hash" to (block.currentBlock?.signature ?: "N/A"),
-            "Epoch" to (block.currentBlock?.epoch?.toString() ?: "N/A"),
-            "Reward" to (block.currentBlock?.rewardLamports?.let { calculatePrice(it, solPrice) }
-                ?: "N/A"),
-            "Previous Block Hash" to (block.currentBlock?.previousBlockHash ?: "N/A")
-        )
-        items.forEach { (title, value) ->
-            Column(modifier = Modifier.padding(vertical = 4.dp)) {
-                Text(
-                    text = title,
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = LightGray
-                )
-                Text(text = value, fontSize = 14.sp, color = Gray)
+
+        with(block.currentBlock) {
+            val items = listOf(
+                "Block" to (this?.block?.toString() ?: "N/A"),
+                "Timestamp" to (this?.time?.let {
+                    calculateTime(
+                        it,
+                        currentTimestamp
+                    )
+                }
+                    ?: "N/A"),
+                "Block Hash" to (this?.signature ?: "N/A"),
+                "Epoch" to (this?.epoch?.toString() ?: "N/A"),
+                "Reward" to (this?.rewardLamports?.let {
+                    calculatePrice(
+                        it,
+                        solPrice
+                    )
+                }
+                    ?: "N/A"),
+                "Previous Block Hash" to (this?.previousBlockHash ?: "N/A")
+            )
+            items.forEach { (title, value) ->
+                Column(modifier = Modifier.padding(vertical = 4.dp)) {
+                    Text(
+                        text = title,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = LightGray
+                    )
+                    Text(text = value, fontSize = 14.sp, color = Gray)
+                }
             }
         }
     }
