@@ -24,23 +24,27 @@ class RpcViewModel : ViewModel() {
             while (isActive) {
                 try {
                     val epochResponse = repository.getEpoch().result
-                    if (epochResponse != null) {
-                        val slotRangeStart = epochResponse.epoch * epochResponse.slotsInEpoch
-                        val slotRangeEnd =
-                            epochResponse.absoluteSlot + (epochResponse.slotsInEpoch - epochResponse.slotIndex)
-                        val timeRemaining =
-                            countTimeRemain(epochResponse.absoluteSlot, slotRangeEnd)
 
-                        _uiState.update { state ->
-                            state.copy(
-                                epoch = epochResponse.epoch,
-                                slotRangeStart = slotRangeStart,
-                                slotRangeEnd = slotRangeEnd,
-                                timeRemaining = timeRemaining
-                            )
-                        }
-                        Log.d("RpcViewModel", "EpochInfo: $epochResponse")
+                    if (epochResponse == null) {
+                        delay(DEFAULT_UPDATE_INTERVAL_MS)
+                        continue
                     }
+
+                    val slotRangeStart = epochResponse.epoch * epochResponse.slotsInEpoch
+                    val slotRangeEnd =
+                        epochResponse.absoluteSlot + (epochResponse.slotsInEpoch - epochResponse.slotIndex)
+                    val timeRemaining =
+                        countTimeRemain(epochResponse.absoluteSlot, slotRangeEnd)
+
+                    _uiState.update { state ->
+                        state.copy(
+                            epoch = epochResponse.epoch,
+                            slotRangeStart = slotRangeStart,
+                            slotRangeEnd = slotRangeEnd,
+                            timeRemaining = timeRemaining
+                        )
+                    }
+                    Log.d("RpcViewModel", "EpochInfo: $epochResponse")
                 } catch (exception: Exception) {
                     Log.e(
                         "RpcViewModel",
@@ -58,20 +62,24 @@ class RpcViewModel : ViewModel() {
             while (isActive) {
                 try {
                     val supplyResponse = repository.getSupply().result
-                    if (supplyResponse != null) {
-                        val totalSupply = supplyResponse.value.total / SOL_VALUE
-                        val circulatingSupply = supplyResponse.value.circulating / SOL_VALUE
-                        val nonCirculatingSupply = supplyResponse.value.nonCirculating / SOL_VALUE
 
-                        _uiState.value = _uiState.value.copy(
-                            totalSupply = totalSupply,
-                            circulatingSupply = circulatingSupply,
-                            nonCirculatingSupply = nonCirculatingSupply,
-                            percentCirculatingSupply = (circulatingSupply / totalSupply) * 100,
-                            percentNonCirculatingSupply = (nonCirculatingSupply / totalSupply) * 100
-                        )
-                        Log.d("RpcViewModel", "Supply: $supplyResponse")
+                    if (supplyResponse == null) {
+                        delay(DEFAULT_UPDATE_INTERVAL_MS)
+                        continue
                     }
+
+                    val totalSupply = supplyResponse.value.total / SOL_VALUE
+                    val circulatingSupply = supplyResponse.value.circulating / SOL_VALUE
+                    val nonCirculatingSupply = supplyResponse.value.nonCirculating / SOL_VALUE
+
+                    _uiState.value = _uiState.value.copy(
+                        totalSupply = totalSupply,
+                        circulatingSupply = circulatingSupply,
+                        nonCirculatingSupply = nonCirculatingSupply,
+                        percentCirculatingSupply = (circulatingSupply / totalSupply) * 100,
+                        percentNonCirculatingSupply = (nonCirculatingSupply / totalSupply) * 100
+                    )
+                    Log.d("RpcViewModel", "Supply: $supplyResponse")
                 } catch (exception: Exception) {
                     Log.e(
                         "RpcViewModel",
@@ -88,27 +96,31 @@ class RpcViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 val slot = specificSlot ?: repository.getLastSlot().result?.longOrNull
-                if (slot != null) {
-                    val blockResponse = repository.getBlock(slot).result
-                    val epochResponse = repository.getEpoch().result
-                    if (blockResponse != null && epochResponse != null) {
-                        val block = Block(
-                            block = slot.toLong(),
-                            signature = blockResponse.blockhash,
-                            time = blockResponse.blockTime.toLong(),
-                            epoch = epochResponse.epoch,
-                            rewardLamports = blockResponse.rewards.sumOf { it.lamports },
-                            previousBlockHash = blockResponse.previousBlockhash
-                        )
-                        _uiState.update { currentState ->
-                            currentState.copy(currentBlock = block)
-                        }
-                        if (specificSlot != null) {
-                            _searchedBlock.value = block
-                        }
-                        Log.d("RpcViewModel", "Block: $blockResponse")
-                    }
+
+                if (slot == null) return@launch
+
+                val blockResponse = repository.getBlock(slot).result
+                val epochResponse = repository.getEpoch().result
+
+                if (blockResponse == null || epochResponse == null) return@launch
+
+                val block = Block(
+                    block = slot.toLong(),
+                    signature = blockResponse.blockhash,
+                    time = blockResponse.blockTime.toLong(),
+                    epoch = epochResponse.epoch,
+                    rewardLamports = blockResponse.rewards.sumOf { it.lamports },
+                    previousBlockHash = blockResponse.previousBlockhash
+                )
+                _uiState.update { currentState ->
+                    currentState.copy(currentBlock = block)
                 }
+
+                if (specificSlot != null) {
+                    _searchedBlock.value = block
+                }
+
+                Log.d("RpcViewModel", "Block: $blockResponse")
             } catch (exception: Exception) {
                 Log.e(
                     "RpcViewModel",
