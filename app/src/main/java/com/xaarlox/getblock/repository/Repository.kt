@@ -1,11 +1,11 @@
 package com.xaarlox.getblock.repository
 
 import android.util.Log
-import com.xaarlox.getblock.data.remote.dto.BlockResult
-import com.xaarlox.getblock.data.remote.dto.EpochInfoResult
-import com.xaarlox.getblock.data.remote.dto.RpcRequest
-import com.xaarlox.getblock.data.remote.dto.RpcResponse
-import com.xaarlox.getblock.data.remote.dto.SupplyResult
+import com.xaarlox.getblock.data.BlockResult
+import com.xaarlox.getblock.data.EpochInfoResult
+import com.xaarlox.getblock.data.RpcRequest
+import com.xaarlox.getblock.data.RpcResponse
+import com.xaarlox.getblock.data.SupplyResult
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -66,10 +66,15 @@ class Repository {
         return postRpc("getSlot")
     }
 
-    suspend fun getBlock(slot: Int?): RpcResponse<BlockResult> {
-        val params = listOf(
-            JsonPrimitive(slot),
-            buildJsonObject { put("maxSupportedTransactionVersion", 0) })
+    suspend fun getBlock(slot: Long?): RpcResponse<BlockResult> {
+        val params = if (slot != null) {
+            listOf(
+                JsonPrimitive(slot),
+                buildJsonObject { put("maxSupportedTransactionVersion", 0) }
+            )
+        } else {
+            listOf(buildJsonObject { put("maxSupportedTransactionVersion", 0) })
+        }
         return postRpc("getBlock", params)
     }
 

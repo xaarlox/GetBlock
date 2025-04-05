@@ -1,4 +1,4 @@
-package com.xaarlox.getblock.data.remote.dto
+package com.xaarlox.getblock.data
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonIgnoreUnknownKeys
