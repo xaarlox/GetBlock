@@ -44,13 +44,13 @@ Below you can see the main interface and functionality of the GetBlock (Solana B
 
 | Main Screen | Block Details |
 |-------------| --------------|
-| <img src="https://github.com/user-attachments/assets/f232b3cf-47bd-43c7-8972-e0e53777568d" width="250"/> <img src="https://github.com/user-attachments/assets/41074c53-1a7c-4601-9c63-40f646b91bf0" width="250"/> | <img src="https://github.com/user-attachments/assets/8654dbae-3a56-4a8e-9b02-22a56df23322" width="250" /> | 
+| <img src="https://github.com/user-attachments/assets/326a4f80-3157-4372-a481-7d9ef83045b1" width="250"/> <img src="https://github.com/user-attachments/assets/351b5b5e-ef50-4b3f-8ded-180d7fd58905" width="250"/> | <img src="https://github.com/user-attachments/assets/191e8d0e-5c55-470d-986c-6c9714a9b372" width="250" /> | 
 | ***Left**: SOL supply and epoch info. **Right**: Latest blocks list*. | *Detailed view of a specific block*. |
 
 
 | Search Interface | Error State |
 |------------------|-------------|
-| <img src="https://github.com/user-attachments/assets/0f0d66a0-e91e-4f8d-a074-08da1ed0101f" width="239"/> | <img src="https://github.com/user-attachments/assets/aec0a9f3-b598-4894-a5c5-cb29ec22847c" width="239"/> |
+| <img src="https://github.com/user-attachments/assets/81472168-8ef9-461d-aa9a-1c186162733a" width="239"/> | <img src="https://github.com/user-attachments/assets/54ffc8d4-5bb0-4b36-98d4-e3660c6aa11b" width="239"/> |
 | *Search bar for finding a block*. | *Invalid search input is entered*. |
 
 
