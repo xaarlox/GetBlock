@@ -13,7 +13,6 @@ GetBlock is an Android application that serves as a [Solana Blockchain Explorer]
 + **Language**: Kotlin.
 + **UI framework**: Jetpack Compose.
 + **Networking**: Ktor HTTP client for API calls.
-+ **Image loading**: Coil for efficient image loading.
 + **API**: [GetBlock.io Solana RPC endpoint](https://docs.getblock.io/api-reference/solana-sol/sol_getblock).
 + **Data models**: Kotlin data classes with *kotlinx* serialization.
 + **State management**: StateFlow and Compose state.
